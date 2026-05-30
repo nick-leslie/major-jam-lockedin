@@ -34,8 +34,9 @@ import rl "vendor:raylib"
 PIXEL_WINDOW_HEIGHT :: 180
 
 Game_Memory :: struct {
-	player_pos: rl.Vector2,
-	player_texture: rl.Texture,
+	// player_pos: rl.Vector2,
+	// player_texture: rl.Texture,
+	player: Character,
 	some_number: int,
 	run: bool,
 }
@@ -48,7 +49,7 @@ game_camera :: proc() -> rl.Camera2D {
 
 	return {
 		zoom = h/PIXEL_WINDOW_HEIGHT,
-		target = g.player_pos,
+		target = g.player.pos,
 		offset = { w/2, h/2 },
 	}
 }
@@ -60,25 +61,9 @@ ui_camera :: proc() -> rl.Camera2D {
 }
 
 update :: proc() {
-	input: rl.Vector2
 
-	if rl.IsKeyDown(.UP) || rl.IsKeyDown(.W) {
-		input.y -= 1
-	}
-	if rl.IsKeyDown(.DOWN) || rl.IsKeyDown(.S) {
-		input.y += 1
-	}
-	if rl.IsKeyDown(.LEFT) || rl.IsKeyDown(.A) {
-		input.x -= 1
-	}
-	if rl.IsKeyDown(.RIGHT) || rl.IsKeyDown(.D) {
-		input.x += 1
-	}
-
-	input = linalg.normalize0(input)
-	g.player_pos += input * rl.GetFrameTime() * 100
-	g.some_number += 1
-
+	player_update(&g.player)
+	
 	if rl.IsKeyPressed(.ESCAPE) {
 		g.run = false
 	}
@@ -89,7 +74,7 @@ draw :: proc() {
 	rl.ClearBackground(rl.BLACK)
 
 	rl.BeginMode2D(game_camera())
-	rl.DrawTextureEx(g.player_texture, g.player_pos, 0, 1, rl.WHITE)
+	player_draw(&g.player)
 	rl.DrawRectangleV({20, 20}, {10, 10}, rl.RED)
 	rl.DrawRectangleV({-30, -20}, {10, 10}, rl.GREEN)
 	rl.EndMode2D()
@@ -99,7 +84,7 @@ draw :: proc() {
 	// NOTE: `fmt.ctprintf` uses the temp allocator. The temp allocator is
 	// cleared at the end of the frame by the main application, meaning inside
 	// `main_hot_reload.odin`, `main_release.odin` or `main_web_entry.odin`.
-	rl.DrawText(fmt.ctprintf("some_number: %v\nplayer_pos: %v", g.some_number, g.player_pos), 5, 5, 8, rl.WHITE)
+	rl.DrawText(fmt.ctprintf("some_number: %v\nplayer_pos: %v", g.some_number, g.player.pos), 5, 5, 8, rl.WHITE)
 
 	rl.EndMode2D()
 
@@ -135,9 +120,11 @@ game_init :: proc() {
 
 		// You can put textures, sounds and music in the `assets` folder. Those
 		// files will be part any release or web build.
-		player_texture = rl.LoadTexture("assets/round_cat.png"),
+		//player_texture = rl.LoadTexture("assets/round_cat.png"),
 	}
 
+	player_setup(&g.player)
+	
 	game_hot_reloaded(g)
 }
 

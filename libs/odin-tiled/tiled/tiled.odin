@@ -1,10 +1,11 @@
 package tiled
 
+import "core:log"
+
 import json "core:encoding/json"
-import os "core:os"
 import fmt "core:fmt"
 import "core:mem"
-import filepath "core:path/filepath"
+
 
 /*
 	Based on the JSON Map Format for Tiled 1.2.
@@ -22,9 +23,10 @@ import filepath "core:path/filepath"
 // parse_tilemap takes a Tiled tilemap JSON file
 // and converts it into an Odin data structure.
 parse_tilemap :: proc(path: string, alloc : mem.Allocator) -> Map {
+    log.info("parsing tile map")
 	m: Map
-	jdata, ok := os.read_entire_file(path, alloc)
-	if ok != nil {
+	jdata, ok := read_entire_file(path, alloc)
+	if !ok {
 		fmt.println("ODIN_TILED: Failed to read file: ", path)
 		return m
 	}
@@ -32,10 +34,10 @@ parse_tilemap :: proc(path: string, alloc : mem.Allocator) -> Map {
 	err := json.unmarshal(jdata, &m, allocator = alloc)
 	if err != nil {
 		fmt.print("ODIN_TILED: Failed to unmarshal JSON: ", err, "\n")
-		ext := filepath.ext(path)
-		if ext == ".tmx" || ext == ".tsx" || ext == ".xml" {
-			fmt.println("ODIN_TILED: file appears to be XML; only JSON is supported")
-		}
+		// ext := filepath.ext(path)
+		// if ext == ".tmx" || ext == ".tsx" || ext == ".xml" {
+		// 	fmt.println("ODIN_TILED: file appears to be XML; only JSON is supported")
+		// }
 		return m
 	}
 	return m
@@ -46,10 +48,10 @@ parse_tilemap :: proc(path: string, alloc : mem.Allocator) -> Map {
 // should probably be the default
 parse_tilemap_and_tilesets :: proc(path: string, alloc : mem.Allocator) -> Map {
 	m := parse_tilemap(path, alloc)
-	dir := filepath.dir(path)
+	dir := dir(path)
 	for &ts in m.tilesets {
 		if ts.source == "" do continue
-		ts_path,err := filepath.join({dir, ts.source})
+		ts_path,err := join_path({dir, ts.source})
 		external_ts := parse_tileset(ts_path, alloc)
 
 		// check could be better
@@ -68,8 +70,8 @@ parse_tilemap_and_tilesets :: proc(path: string, alloc : mem.Allocator) -> Map {
 // and converts it into an Odin data structure.
 parse_tileset :: proc(path: string, alloc : mem.Allocator) -> Tileset {
 	ts: Tileset
-	jdata, ok := os.read_entire_file(path, alloc)
-	if ok != nil {
+	jdata, ok := read_entire_file(path, alloc)
+	if !ok {
 		fmt.print("Failed to read file: ", path, "\n")
 		return ts
 	}
@@ -77,10 +79,10 @@ parse_tileset :: proc(path: string, alloc : mem.Allocator) -> Tileset {
 	err := json.unmarshal(jdata, &ts, allocator = alloc)
 	if err != nil {
 		fmt.print("ODIN_TILED: Failed to unmarshal JSON from ", path, ": ", err, "\n")
-		ext := filepath.ext(path)
-		if ext == ".tmx" || ext == ".tsx" || ext == ".xml" {
-			fmt.println("ODIN_TILED: File appears to be XML; only JSON is supported")
-		}
+		// ext := filepath.ext(path)
+		// if ext == ".tmx" || ext == ".tsx" || ext == ".xml" {
+		// 	fmt.println("ODIN_TILED: File appears to be XML; only JSON is supported")
+		// }
 		return ts
 	}
 	return ts
@@ -146,7 +148,7 @@ LayerCompression :: enum {
 	None,
 	zlib,
 	gzip,
-	zstd
+	zstd,
 }
 
 LayerEncoding :: enum {

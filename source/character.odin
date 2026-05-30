@@ -1,6 +1,5 @@
 package game
 
-import "core:sys/linux/uring"
 import rl "vendor:raylib"
 import "core:math/linalg"
 
@@ -37,7 +36,7 @@ player_update :: proc(player: ^Character){
 	if speed > player.max_speed {
 		player.vel = player.vel / speed * player.max_speed
 	}
-	check_map_collision_tile(player,g.tile_map)
+	// check_map_collision_tile(player,g.tile_map)
 	player.pos += player.vel
 }
 

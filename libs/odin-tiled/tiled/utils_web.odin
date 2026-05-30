@@ -4,7 +4,8 @@
 
 #+build wasm32, wasm64p32
 
-package game
+package tiled
+
 
 import "base:runtime"
 import "core:log"
@@ -107,6 +108,26 @@ _write_entire_file :: proc(name: string, data: []byte, truncate := true) -> (suc
 	log.debugf("File written successfully: %v", name)
 	return true
 }
+Path_Separator        :: _Path_Separator        // OS-Specific
+Path_Separator_String :: _Path_Separator_String // OS-Specific
+Path_Separator_Chars  :: `/\`
+Path_List_Separator   :: _Path_List_Separator   // OS-Specific
+_Path_Separator        :: '/'
+_Path_Separator_String :: "/"
+_Path_List_Separator   :: ':'
+
+//todo this is bad
+@(require_results)
+_join_path :: proc(elems: []string, allocator: runtime.Allocator) -> (joined: string, err: runtime.Allocator_Error) {
+	for e, i in elems {
+		if e != "" {
+			p,err := strings.join(elems[i:], Path_Separator_String, allocator)
+			return p,err
+		}
+	}
+	return "", nil
+}
+
 
 _dir :: proc(path: string) -> string {
 	if path == "" {
@@ -116,9 +137,6 @@ _dir :: proc(path: string) -> string {
 	d, _ := split_path(path)
 	return d
 }
-_Path_Separator        :: '/'
-_Path_Separator_String :: "/"
-_Path_List_Separator   :: ':'
 
 _is_path_separator :: proc(c: byte) -> bool {
 	return c == _Path_Separator

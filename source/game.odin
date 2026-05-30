@@ -27,11 +27,12 @@ created.
 
 package game
 
+import "core:log"
 import "core:fmt"
-import "core:math/linalg"
 import rl "vendor:raylib"
 import tiled "../libs/odin-tiled/tiled"
 import vmem "core:mem/virtual"
+import "core:mem"
 PIXEL_WINDOW_HEIGHT :: 180
 
 Game_Memory :: struct {
@@ -42,7 +43,7 @@ Game_Memory :: struct {
 	run: bool,
 	tile_map: tiled.Map,
 	sprite_sheet: rl.Texture,
-	arena:vmem.Arena,
+	arena:mem.Dynamic_Arena,
 }
 
 g: ^Game_Memory
@@ -117,10 +118,11 @@ game_init_window :: proc() {
 @(export)
 game_init :: proc() {
 	g = new(Game_Memory)
-	arena_alocator := vmem.arena_allocator(&g.arena)
-
+	arena:mem.Dynamic_Arena
+	mem.dynamic_arena_init(&arena)   // only if not already initialized elsewhere
+	arena_alocator := mem.dynamic_arena_allocator(&arena)
+	log.debug("test")
     tiled_map := tiled.parse_tilemap("assets/test2.tmj",arena_alocator)
-
     tileset_texture := rl.LoadTexture("assets/moderninteriors-win/1_Interiors/32x32/Room_Builder_32x32.png")
 
 
@@ -129,6 +131,7 @@ game_init :: proc() {
 		some_number = 100,
 		tile_map = tiled_map,
 		sprite_sheet = tileset_texture,
+		arena = arena,
 		// You can put textures, sounds and music in the `assets` folder. Those
 		// files will be part any release or web build.
 		//player_texture = rl.LoadTexture("assets/round_cat.png"),
@@ -153,8 +156,8 @@ game_should_run :: proc() -> bool {
 
 @(export)
 game_shutdown :: proc() {
+	mem.dynamic_arena_destroy(&g.arena)
 	free(g)
-	vmem.arena_destroy(&g.arena)
 }
 
 @(export)

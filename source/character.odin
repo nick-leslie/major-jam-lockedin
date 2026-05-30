@@ -36,8 +36,15 @@ player_update :: proc(player: ^Character){
 	if speed > player.max_speed {
 		player.vel = player.vel / speed * player.max_speed
 	}
-	// check_map_collision_tile(player,g.tile_map)
-	player.pos += player.vel
+    player_collider := rl.Rectangle {
+        x = player.pos.x,
+        y= player.pos.y,
+        width = player.size.x,
+        height = player.size.y
+    }
+	if check_map_collision_tile(player_collider,g.tile_map) == false {
+	    player.pos += player.vel
+	}
 }
 
 player_draw :: proc(player: ^Character){

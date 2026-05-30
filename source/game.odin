@@ -33,7 +33,7 @@ import rl "vendor:raylib"
 import tiled "../libs/odin-tiled/tiled"
 import vmem "core:mem/virtual"
 import "core:mem"
-PIXEL_WINDOW_HEIGHT :: 180
+PIXEL_WINDOW_HEIGHT :: 380
 
 Screen :: enum {
     MainMenue,

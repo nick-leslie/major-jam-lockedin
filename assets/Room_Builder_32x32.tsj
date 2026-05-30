@@ -1,0 +1,24 @@
+{ "columns":76,
+ "image":"moderninteriors-win\/1_Interiors\/32x32\/Room_Builder_32x32.png",
+ "imageheight":3616,
+ "imagewidth":2432,
+ "margin":0,
+ "name":"Room_Builder_32x32",
+ "spacing":0,
+ "tilecount":8588,
+ "tiledversion":"1.12.1",
+ "tileheight":32,
+ "tiles":[
+        {
+         "id":3930,
+         "properties":[
+                {
+                 "name":"test",
+                 "type":"string",
+                 "value":""
+                }]
+        }],
+ "tilewidth":32,
+ "type":"tileset",
+ "version":"1.10"
+}

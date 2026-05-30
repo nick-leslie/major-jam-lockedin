@@ -128,6 +128,7 @@ game_init_window :: proc() {
 game_init :: proc() {
 	g = new(Game_Memory)
 
+	
 	g^ = Game_Memory {
 		run = true,
 		some_number = 100,

@@ -33,7 +33,7 @@ render_tiled_map :: proc(t_map: tiled.Map, texture: rl.Texture2D,tile_width:i32=
     }
 }
 
-check_map_collision_tile :: proc(col:rl.Rectangle,tiled_map:tiled.Map) -> bool {
+check_map_collision_tile :: proc(col:rl.Rectangle,tiled_map:tiled.Map,tile_size:i32=32) -> bool {
     for layer in tiled_map.layers {
         //todo is this how we should do it
         if layer.type == .tilelayer && layer.name == "col" {
@@ -44,10 +44,10 @@ check_map_collision_tile :: proc(col:rl.Rectangle,tiled_map:tiled.Map) -> bool {
                         continue
                     }
                     rect := rl.Rectangle{
-                        x = f32(x*32),
-                        y = f32(y*32),
-                        width = f32(32),
-                        height = f32(32),
+                        x = f32(x*tile_size),
+                        y = f32(y*tile_size),
+                        width = f32(tile_size),
+                        height = f32(tile_size),
                     }
                     if rl.CheckCollisionRecs(col, rect) {
                         return true

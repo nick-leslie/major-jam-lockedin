@@ -1,5 +1,5 @@
 {
-    "activeFile": "level1.tmj",
+    "activeFile": "test2.tmj",
     "expandedProjectPaths": [
         "."
     ],
@@ -32,7 +32,7 @@
         },
         "test2.tmj": {
             "scale": 1.2587499999999998,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
                 "x": 479.84111221449854,
                 "y": 319.7616683217478
@@ -50,9 +50,9 @@
     ],
     "project": "world-project.tiled-project",
     "recentFiles": [
-        "test2.tmj",
-        "Room_Builder_32x32.tsj",
         "level1.tmj",
+        "Room_Builder_32x32.tsj",
+        "test2.tmj",
         "level1.tmx"
     ],
     "tileset.embedInMap": false,

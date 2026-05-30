@@ -30,7 +30,8 @@ package game
 import "core:fmt"
 import "core:math/linalg"
 import rl "vendor:raylib"
-
+import tiled "../libs/odin-tiled/tiled"
+import vmem "core:mem/virtual"
 PIXEL_WINDOW_HEIGHT :: 180
 
 Game_Memory :: struct {
@@ -39,6 +40,9 @@ Game_Memory :: struct {
 	player: Character,
 	some_number: int,
 	run: bool,
+	tile_map: tiled.Map,
+	sprite_sheet: rl.Texture,
+	arena:vmem.Arena,
 }
 
 g: ^Game_Memory
@@ -63,7 +67,7 @@ ui_camera :: proc() -> rl.Camera2D {
 update :: proc() {
 
 	player_update(&g.player)
-	
+
 	if rl.IsKeyPressed(.ESCAPE) {
 		g.run = false
 	}
@@ -74,6 +78,7 @@ draw :: proc() {
 	rl.ClearBackground(rl.BLACK)
 
 	rl.BeginMode2D(game_camera())
+	render_tiled_map(g.tile_map, g.sprite_sheet)
 	player_draw(&g.player)
 	rl.DrawRectangleV({20, 20}, {10, 10}, rl.RED)
 	rl.DrawRectangleV({-30, -20}, {10, 10}, rl.GREEN)
@@ -112,19 +117,25 @@ game_init_window :: proc() {
 @(export)
 game_init :: proc() {
 	g = new(Game_Memory)
+	arena_alocator := vmem.arena_allocator(&g.arena)
 
-	
+    tiled_map := tiled.parse_tilemap("assets/test2.tmj",arena_alocator)
+
+    tileset_texture := rl.LoadTexture("assets/moderninteriors-win/1_Interiors/32x32/Room_Builder_32x32.png")
+
+
 	g^ = Game_Memory {
 		run = true,
 		some_number = 100,
-
+		tile_map = tiled_map,
+		sprite_sheet = tileset_texture,
 		// You can put textures, sounds and music in the `assets` folder. Those
 		// files will be part any release or web build.
 		//player_texture = rl.LoadTexture("assets/round_cat.png"),
 	}
 
 	player_setup(&g.player)
-	
+
 	game_hot_reloaded(g)
 }
 
@@ -143,6 +154,7 @@ game_should_run :: proc() -> bool {
 @(export)
 game_shutdown :: proc() {
 	free(g)
+	vmem.arena_destroy(&g.arena)
 }
 
 @(export)

@@ -8,6 +8,7 @@ Character :: struct {
 	pos: rl.Vector2,
 	vel: rl.Vector2,
 	texture: rl.Texture,
+	size:rl.Vector2,
 	accel: f32,
 	damp: f32,
 	max_speed: f32,
@@ -15,7 +16,7 @@ Character :: struct {
 
 player_update :: proc(player: ^Character){
 	input: rl.Vector2
-	
+
 	if rl.IsKeyDown(.UP) || rl.IsKeyDown(.W) {
 		input.y -= 1
 	}
@@ -36,6 +37,7 @@ player_update :: proc(player: ^Character){
 	if speed > player.max_speed {
 		player.vel = player.vel / speed * player.max_speed
 	}
+	check_map_collision_tile(player,g.tile_map)
 	player.pos += player.vel
 }
 
@@ -48,4 +50,5 @@ player_setup :: proc(player: ^Character, accel: f32 = 100, damping: f32 = 0.85, 
 	player.accel = accel
 	player.damp = damping
 	player.max_speed = max_speed
+	player.size = {10,10}
 }

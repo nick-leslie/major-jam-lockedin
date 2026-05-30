@@ -88,7 +88,7 @@ draw :: proc() {
 	rl.ClearBackground(rl.BLACK)
 
 	rl.BeginMode2D(game_camera())
-	render_tiled_map(g.tile_map, g.sprite_sheet)
+	render_level_tilemap(g.level)
 	player_draw(&g.player)
 	rl.DrawRectangleV({20, 20}, {10, 10}, rl.RED)
 	rl.DrawRectangleV({-30, -20}, {10, 10}, rl.GREEN)
@@ -143,7 +143,7 @@ game_init :: proc() {
 		// files will be part any release or web build.
 		//player_texture = rl.LoadTexture("assets/round_cat.png"),
 	}
-	g.level = setup_level_1(g)
+	g.level = setup_level_1(&g.level_arena,{0,0})
 
 	player_setup(&g.player)
 

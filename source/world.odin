@@ -2,6 +2,23 @@ package game
 import rl "vendor:raylib"
 import tiled "../libs/odin-tiled/tiled"
 import "core:log"
+import "core:mem"
+
+Level :: struct {
+    tile_map:tiled.Map,
+    // entitys: [50]Entity,
+    // enemys: [50]i32 index for enemeys
+}
+
+setup_level_1 :: proc(g:^Game_Memory) -> Level {
+    arena_alocator := mem.dynamic_arena_allocator(&g.level_arena)
+    mem.free_all(arena_alocator)
+    tiled_map := tiled.parse_tilemap("assets/level1.tmj",arena_alocator)
+    return Level {
+        tile_map=tiled_map,
+    }
+}
+
 render_tiled_map :: proc(t_map: tiled.Map, texture: rl.Texture2D,tile_width:i32=32,tile_height:i32=32) {
     for layer in t_map.layers {
         for y in 0..<layer.height {

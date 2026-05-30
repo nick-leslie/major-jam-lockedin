@@ -35,6 +35,13 @@ import vmem "core:mem/virtual"
 import "core:mem"
 PIXEL_WINDOW_HEIGHT :: 180
 
+Screen :: enum {
+    MainMenue,
+    GamePlay,
+    Pause,
+    Settings,
+}
+
 Game_Memory :: struct {
 	// player_pos: rl.Vector2,
 	// player_texture: rl.Texture,
@@ -43,7 +50,9 @@ Game_Memory :: struct {
 	run: bool,
 	tile_map: tiled.Map,
 	sprite_sheet: rl.Texture,
-	arena:mem.Dynamic_Arena,
+	level:Level,
+	// should be used for things related to levels
+	level_arena:mem.Dynamic_Arena,
 }
 
 g: ^Game_Memory
@@ -122,20 +131,19 @@ game_init :: proc() {
 	mem.dynamic_arena_init(&arena)   // only if not already initialized elsewhere
 	arena_alocator := mem.dynamic_arena_allocator(&arena)
 	log.debug("test")
-    tiled_map := tiled.parse_tilemap("assets/test2.tmj",arena_alocator)
     tileset_texture := rl.LoadTexture("assets/moderninteriors-win/1_Interiors/32x32/Room_Builder_32x32.png")
 
 
 	g^ = Game_Memory {
 		run = true,
 		some_number = 100,
-		tile_map = tiled_map,
 		sprite_sheet = tileset_texture,
-		arena = arena,
+		level_arena = arena,
 		// You can put textures, sounds and music in the `assets` folder. Those
 		// files will be part any release or web build.
 		//player_texture = rl.LoadTexture("assets/round_cat.png"),
 	}
+	g.level = setup_level_1(g)
 
 	player_setup(&g.player)
 
@@ -156,7 +164,7 @@ game_should_run :: proc() -> bool {
 
 @(export)
 game_shutdown :: proc() {
-	mem.dynamic_arena_destroy(&g.arena)
+	mem.dynamic_arena_destroy(&g.level_arena)
 	free(g)
 }
 

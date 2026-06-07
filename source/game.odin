@@ -89,6 +89,7 @@ draw :: proc() {
 
 	rl.BeginMode2D(game_camera())
 	render_level_tilemap(g.level)
+	render_level_entitys(g.level)
 	player_draw(&g.player)
 	rl.DrawRectangleV({20, 20}, {10, 10}, rl.RED)
 	rl.DrawRectangleV({-30, -20}, {10, 10}, rl.GREEN)

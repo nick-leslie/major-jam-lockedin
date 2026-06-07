@@ -11,10 +11,11 @@ Level :: struct {
     tile_map:tiled.Map,
     tile_size:rl.Vector2,
     tileset:rl.Texture2D,
-    entitys: [MAX_ENTITYS]Maybe(Entity),
+    entity_textures:[dynamic]rl.Texture,
+    entitys: [MAX_ENTITYS]Entity,
     //should these be dynamics
-    enemys: [MAX_ENTITYS]Maybe(i8), //index for enemeys
-    items: [MAX_ENTITYS]Maybe(i8), //index for enemeys
+    enemys: [dynamic]i8, //index for enemeys
+    pickups:  [dynamic]i8, //index for items
     lvl_arena_ptr:^mem.Dynamic_Arena,
 }
 
@@ -27,29 +28,46 @@ setup_level_1 :: proc(arena:^mem.Dynamic_Arena,world_offset:rl.Vector2) -> Level
         tile_size={32,32},
         world_offset=world_offset,
         tileset=rl.LoadTexture("assets/moderninteriors-win/1_Interiors/32x32/Room_Builder_32x32.png"),
-        lvl_arena_ptr=  arena
+        lvl_arena_ptr=arena,
         //todo spawn entitys
     }
+    l1.entity_textures = make([dynamic]rl.Texture2D,arena_alocator)
+    append(&l1.entity_textures, rl.LoadTexture("assets/round_cat.png"))
+
     l1.entitys[0] = Entity{
-        pos= {0+l1.world_offset.x,0+l1.world_offset.y},
-        box ={0,0,32,32},
+        pos= rl.Vector2{40,40}+l1.world_offset,
+        size ={0,0,20,24},
         type = .Enemy,
-        texture=rl.LoadTexture("assets/round_cat.png")
+        texture_index=0,
     }
-    l1.enemys[0] = 0;
+    l1.entitys[1] = Entity{
+        pos= rl.Vector2{90,90}+l1.world_offset,
+        size ={0,0,20,24},
+        type = .Pickup,
+        texture_index=0,
+    }
+    l1.enemys=make([dynamic]i8,arena_alocator)
+    append(&l1.enemys,0);
     return l1
 }
 
 unload_level :: proc(lvl:^Level) {
     arena_alocator := mem.dynamic_arena_allocator(lvl.lvl_arena_ptr)
-    mem.free_all(arena_alocator)
-    for i:=0;i<len(lvl.entitys);i+=1 {
-        if g.level.entitys[i] == nil {
-            continue
-        }
-        rl.UnloadTexture(lvl.entitys[i].(Entity).texture)
+    for i:=0;i<len(lvl.entity_textures);i+=1 {
+        rl.UnloadTexture(lvl.entity_textures[i])
     }
     rl.UnloadTexture(lvl.tileset)
+    mem.free_all(arena_alocator)
+}
+
+render_level_entitys :: proc(level:Level) {
+    for i:=0;i<len(level.entitys);i+=1 {
+        entity := level.entitys[i]
+        if entity.type == nil {
+            continue
+        }
+        render_entity(entity)
+    }
 }
 
 render_level_tilemap :: proc(level: Level) {
